@@ -1,47 +1,139 @@
-# Набор тестов для эндпоинтов которые можно запустить
-# в VSCode с помощью плагина  REST Client
-# Найти можно по идентификатору: humao.rest-client
-# Tunder Client не позволяет свободно импортировать-экспортировать записи,
-# поэтому перешел на этот плагин. Он тоже хорош :-)
 
-# Создаем книгу
 POST http://localhost:8000/api/v1/books/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "title": "Clean Architecture",
-    "author": " Robert Martin",
-    "count_pages": 300,
-    "year": 2025
+    "title":  "Clean Code",
+    "author": "Robert Martin",
+    "year": 2022,
+    "count_pages": 500,
+    "seller_id": 6
 }
 
 ###
 
-# Получаем список книг
-GET http://localhost:8000/api/v1/books/ HTTP/1.1
-
-###
-
-# Получаем одну книгу по ее ИД
-GET http://localhost:8000/api/v1/books/1 HTTP/1.1
-
-###
-
-# Удаляем книгу
-DELETE http://localhost:8000/api/v1/books/1 HTTP/1.1
-
-###
-
-# Обновляем поля в данных о книге
-PUT http://localhost:8000/api/v1/books/1 HTTP/1.1
+POST http://localhost:8000/api/v1/books/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "id": 5,
-    "title": "Clean Code",
-    "author": "Robert Martin",
-    "year": 2022,
-    "pages": 310
+    "title":  "War and Peace",
+    "author": "Lev Tolstoy",
+    "year": 2030,
+    "count_pages": 1500,
+    "seller_id": 6
 }
 
 ###
+
+POST http://localhost:8000/api/v1/books/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "title":  "How to sing if bear stepped on your ear",
+    "author": "Buzova Olga",
+    "year": 2022,
+    "count_pages": 7,
+    "seller_id": 6
+}
+
+###
+
+# GET http://localhost:8000/api/v1/main HTTP/1.1
+# Content-Type: application/json
+
+###
+GET http://localhost:8000/api/v1/books/ HTTP/1.1
+Content-Type: application/json
+
+###
+GET http://localhost:8000/api/v1/books/1 HTTP/1.1
+Content-Type: application/json
+
+###
+DELETE http://localhost:8000/api/v1/books/1 HTTP/1.1
+Content-Type: application/json
+
+###
+
+PUT http://localhost:8000/api/v1/books/2 HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": 7,
+    "title": "Clean Architecture",
+    "author": "Robert Martin",
+    "year": 2025,
+    "pages": 315,
+    "seller_id": 2
+}
+
+###
+
+POST http://localhost:8000/api/v1/sellers/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "first_name": "Alexey",
+    "last_name": "Petrov",
+    "email": "ap@mail.com",
+    "password": "a12347823!"
+}
+###
+
+POST http://localhost:8000/api/v1/sellers/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "first_name": "Kolka",
+    "last_name": "Puzov",
+    "email": "kolyan_nadmenniy@mail.com",
+    "password": "sdfyu3hfi&"
+}
+
+###
+
+POST http://localhost:8000/api/v1/sellers/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "first_name": "Kolka",
+    "last_name": "Puzov",
+    "email": "kolyan_nadmenniy@mail.com",
+    "password": "sdfyu3hfi"
+}
+
+###
+
+POST http://localhost:8000/api/v1/sellers/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "first_name": "Olga",
+    "last_name": "Buzova",
+    "email": "best_singer@mail.com",
+    "password": "malo_poloviN!"
+}
+
+###
+
+GET http://localhost:8000/api/v1/sellers/ HTTP/1.1
+Content-Type: application/json
+
+###
+GET http://localhost:8000/api/v1/sellers/2 HTTP/1.1
+Content-Type: application/json
+
+###
+DELETE http://localhost:8000/api/v1/sellers/2 HTTP/1.1
+Content-Type: application/json
+
+###
+PUT http://localhost:8000/api/v1/sellers/4 HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": 100,
+    "first_name": "Vasya",
+    "last_name": "Trusikov",
+    "email": "vasya_velikiy@mail.com"
+}

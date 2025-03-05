@@ -1,44 +1,58 @@
-# Для импорта из корневого модуля
-# import sys
-# sys.path.append("..")
-# from main import app
-
-from typing import Annotated
-from fastapi import APIRouter, Depends, Response, status
-from sqlalchemy import select
-from src.models.books import Book
-from src.schemas import IncomingBook, ReturnedAllbooks, ReturnedBook
 from icecream import ic
+from fastapi import APIRouter, status, Response, Depends
+from pydantic_core import PydanticCustomError
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.configurations import get_async_session
+from typing import Annotated
 
-books_router = APIRouter(tags=["books"], prefix="/books")
+from src.configurations.database import get_async_session
+from src.models.books import Book
+from src.models.sellers import Seller
+from src.schemas import IncomingBook, ReturnedBook, ReturnedAllBooks
 
-# CRUD - Create, Read, Update, Delete
+books_router = APIRouter(
+    tags=["books"],
+    prefix="/books"
+)
 
 DBSession = Annotated[AsyncSession, Depends(get_async_session)]
 
-
-# Ручка для создания записи о книге в БД. Возвращает созданную книгу.
-# @books_router.post("/books/", status_code=status.HTTP_201_CREATED)
-@books_router.post(
-    "/", response_model=ReturnedBook, status_code=status.HTTP_201_CREATED
-)  # Прописываем модель ответа
+@books_router.post("/", response_model=ReturnedBook, status_code=status.HTTP_201_CREATED)
 async def create_book(
-    book: IncomingBook,
-    session: DBSession,
-):  # прописываем модель валидирующую входные данные
-    # session = get_async_session() вместо этого мы используем иньекцию зависимостей DBSession
+    book: IncomingBook, 
+    session: DBSession, 
+    ) -> dict:
 
-    # это - бизнес логика. Обрабатываем данные, сохраняем, преобразуем и т.д.
-    new_book = Book(
-        **{
-            "title": book.title,
-            "author": book.author,
-            "year": book.year,
-            "pages": book.pages,
-        }
-    )
+    # TODO: check if seller with seller_id exists
+    if not await session.get(Seller, book.seller_id):
+        # raise PydanticCustomError(
+        #     "seller_id", "seller with this id does not exist"
+        # )
+        return Response(
+            status_code=status.HTTP_404_NOT_FOUND
+            )
+    # seller_result = await session.execute(
+    #     select(Seller).where(Seller.id == book.seller_id)
+    # )
+
+    # seller = seller_result.scalars().first()
+
+    # if not seller:
+    #     # raise PydanticCustomError(
+    #     #     "seller_id", "seller with this id does not exist"
+    #     # )
+    #     return Response(
+    #         status_code=status.HTTP_404_NOT_FOUND
+    #         )
+
+
+    new_book = Book(**{
+        "title": book.title,
+        "author": book.author,
+        "year": book.year,
+        "pages": book.pages,
+        "seller_id": book.seller_id
+    })
 
     session.add(new_book)
     await session.flush()
@@ -46,49 +60,42 @@ async def create_book(
     return new_book
 
 
-# Ручка, возвращающая все книги
-@books_router.get("/", response_model=ReturnedAllbooks)
-async def get_all_books(session: DBSession):
-    # Хотим видеть формат
-    # books: [{"id": 1, "title": "blabla", ...., "year": 2023},{...}]
-    query = select(Book)  # SELECT * FROM book
+@books_router.get("/", response_model=ReturnedAllBooks)
+async def get_all_books(session: DBSession) -> dict:
+    query = select(Book)
     result = await session.execute(query)
     books = result.scalars().all()
     return {"books": books}
 
 
-# Ручка для получения книги по ее ИД
 @books_router.get("/{book_id}", response_model=ReturnedBook)
-async def get_book(book_id: int, session: DBSession):
+async def get_book(book_id: int, session: DBSession) -> dict:
     if result := await session.get(Book, book_id):
         return result
 
     return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-
-# Ручка для удаления книги
 @books_router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_book(book_id: int, session: DBSession):
+async def delete_book(book_id: int, session: DBSession) -> None:
     deleted_book = await session.get(Book, book_id)
-    ic(deleted_book)  # Красивая и информативная замена для print. Полезна при отладке.
+    ic(deleted_book)
     if deleted_book:
         await session.delete(deleted_book)
-    else:
-        return Response(status_code=status.HTTP_404_NOT_FOUND)
+        return
 
+    return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-# Ручка для обновления данных о книге
 @books_router.put("/{book_id}", response_model=ReturnedBook)
-async def update_book(book_id: int, new_book_data: ReturnedBook, session: DBSession):
-    # Оператор "морж", позволяющий одновременно и присвоить значение и проверить его. Заменяет то, что закомментировано выше.
+async def update_book(book_id: int, new_book_data: ReturnedBook, session: DBSession) -> dict:
+
     if updated_book := await session.get(Book, book_id):
         updated_book.author = new_book_data.author
         updated_book.title = new_book_data.title
         updated_book.year = new_book_data.year
         updated_book.pages = new_book_data.pages
+        updated_book.seller_id = new_book_data.seller_id
 
         await session.flush()
-
         return updated_book
-
+    
     return Response(status_code=status.HTTP_404_NOT_FOUND)

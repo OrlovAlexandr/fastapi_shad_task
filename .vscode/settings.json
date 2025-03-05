@@ -1,6 +1,6 @@
 {
     "python.analysis.extraPaths": ["${workspaceFolder}/src"],
-    "python.defaultInterpreterPath": "/home/alex/projects/shad/fastapi_step_by_step/.venv/bin/python",
+    "python.defaultInterpreterPath": "/home/alex/projects/shad/fastapi_step_by_step/.venv/bin/python3.10",
     "python.testing.pytestArgs": ["tests"],
     "python.testing.cwd": "${workspaceFolder}/src",
     "python.testing.unittestEnabled": false,
