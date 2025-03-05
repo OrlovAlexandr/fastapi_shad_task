@@ -1,58 +1,37 @@
+from typing import Annotated
+
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import Response
+from fastapi import status
 from icecream import ic
-from fastapi import APIRouter, status, Response, Depends
-from pydantic_core import PydanticCustomError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Annotated
 
 from src.configurations.database import get_async_session
 from src.models.books import Book
 from src.models.sellers import Seller
-from src.schemas import IncomingBook, ReturnedBook, ReturnedAllBooks
+from src.schemas import IncomingBook
+from src.schemas import ReturnedAllBooks
+from src.schemas import ReturnedBook
+
 
 books_router = APIRouter(
     tags=["books"],
-    prefix="/books"
+    prefix="/books",
 )
 
 DBSession = Annotated[AsyncSession, Depends(get_async_session)]
 
+
 @books_router.post("/", response_model=ReturnedBook, status_code=status.HTTP_201_CREATED)
-async def create_book(
-    book: IncomingBook, 
-    session: DBSession, 
-    ) -> dict:
-
-    # TODO: check if seller with seller_id exists
+async def create_book(book: IncomingBook, session: DBSession):
     if not await session.get(Seller, book.seller_id):
-        # raise PydanticCustomError(
-        #     "seller_id", "seller with this id does not exist"
-        # )
         return Response(
-            status_code=status.HTTP_404_NOT_FOUND
-            )
-    # seller_result = await session.execute(
-    #     select(Seller).where(Seller.id == book.seller_id)
-    # )
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
 
-    # seller = seller_result.scalars().first()
-
-    # if not seller:
-    #     # raise PydanticCustomError(
-    #     #     "seller_id", "seller with this id does not exist"
-    #     # )
-    #     return Response(
-    #         status_code=status.HTTP_404_NOT_FOUND
-    #         )
-
-
-    new_book = Book(**{
-        "title": book.title,
-        "author": book.author,
-        "year": book.year,
-        "pages": book.pages,
-        "seller_id": book.seller_id
-    })
+    new_book = Book(title=book.title, author=book.author, year=book.year, pages=book.pages, seller_id=book.seller_id)
 
     session.add(new_book)
     await session.flush()
@@ -61,7 +40,7 @@ async def create_book(
 
 
 @books_router.get("/", response_model=ReturnedAllBooks)
-async def get_all_books(session: DBSession) -> dict:
+async def get_all_books(session: DBSession):
     query = select(Book)
     result = await session.execute(query)
     books = result.scalars().all()
@@ -69,25 +48,26 @@ async def get_all_books(session: DBSession) -> dict:
 
 
 @books_router.get("/{book_id}", response_model=ReturnedBook)
-async def get_book(book_id: int, session: DBSession) -> dict:
+async def get_book(book_id: int, session: DBSession):
     if result := await session.get(Book, book_id):
         return result
 
     return Response(status_code=status.HTTP_404_NOT_FOUND)
 
+
 @books_router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_book(book_id: int, session: DBSession) -> None:
+async def delete_book(book_id: int, session: DBSession):
     deleted_book = await session.get(Book, book_id)
     ic(deleted_book)
     if deleted_book:
         await session.delete(deleted_book)
-        return
+        return None
 
     return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-@books_router.put("/{book_id}", response_model=ReturnedBook)
-async def update_book(book_id: int, new_book_data: ReturnedBook, session: DBSession) -> dict:
 
+@books_router.put("/{book_id}", response_model=ReturnedBook)
+async def update_book(book_id: int, new_book_data: ReturnedBook, session: DBSession):
     if updated_book := await session.get(Book, book_id):
         updated_book.author = new_book_data.author
         updated_book.title = new_book_data.title
@@ -97,5 +77,5 @@ async def update_book(book_id: int, new_book_data: ReturnedBook, session: DBSess
 
         await session.flush()
         return updated_book
-    
+
     return Response(status_code=status.HTTP_404_NOT_FOUND)

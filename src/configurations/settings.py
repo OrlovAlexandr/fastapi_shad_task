@@ -1,4 +1,6 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
+from pydantic_settings import SettingsConfigDict
+
 
 class Settings(BaseSettings):
     db_host: str
@@ -10,15 +12,18 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
-        return f'postgresql+asyncpg://{self.db_username}:{self.db_password}@{self.db_host}/{self.db_name}'
-    
+        return (f'postgresql+asyncpg://{self.db_username}:'
+                f'{self.db_password}@{self.db_host}/{self.db_name}')
+
     @property
     def database_test_url(self) -> str:
-        return f'postgresql+asyncpg://{self.db_username}:{self.db_password}@{self.db_host}/{self.db_test_name}'
-    
+        return (f'postgresql+asyncpg://{self.db_username}:'
+                f'{self.db_password}@{self.db_host}/{self.db_test_name}')
+
     model_config = SettingsConfigDict(
-        env_file='.env', 
+        env_file='.env',
         env_file_encoding='utf-8',
-        )
-    
+    )
+
+
 settings = Settings()

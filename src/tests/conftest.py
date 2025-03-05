@@ -1,18 +1,22 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from typing import AsyncGenerator
-import pytest_asyncio
-import pytest
 import asyncio
+from collections.abc import AsyncGenerator
+
 import httpx
+import pytest
+import pytest_asyncio
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
+
 from src.configurations.settings import settings
 from src.models.base import BaseModel
 
+
 async_test_engine = create_async_engine(settings.database_test_url, echo=True)
 
-
 async_test_session = async_sessionmaker(
-    async_test_engine, expire_on_commit=False, autoflush=False
-    )
+    async_test_engine, expire_on_commit=False, autoflush=False,
+)
+
 
 @pytest_asyncio.fixture(scope="session")
 def event_loop():
@@ -27,6 +31,7 @@ async def create_tables() -> None:
         await connection.run_sync(BaseModel.metadata.drop_all)
         await connection.run_sync(BaseModel.metadata.create_all)
 
+
 @pytest_asyncio.fixture(scope="function")
 async def db_session() -> AsyncGenerator:
     async with async_test_engine.connect() as connection:
@@ -34,12 +39,14 @@ async def db_session() -> AsyncGenerator:
             yield session
             await session.rollback()
 
+
 @pytest.fixture(scope="function")
 def override_get_async_session(db_session):
     async def _override_get_async_session():
         yield db_session
 
     return _override_get_async_session
+
 
 @pytest.fixture(scope="function")
 def test_app(override_get_async_session):
@@ -50,11 +57,11 @@ def test_app(override_get_async_session):
 
     return app
 
+
 @pytest_asyncio.fixture(scope="function")
 async def async_client(test_app):
     transport = httpx.ASGITransport(app=test_app)
     async with httpx.AsyncClient(
-        transport=transport, base_url="http://127.0.0.1:8000"
-        ) as test_client:
+            transport=transport, base_url="http://127.0.0.1:8000",
+    ) as test_client:
         yield test_client
-        

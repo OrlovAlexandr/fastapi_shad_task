@@ -1,8 +1,11 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+
+from src.configurations.database import create_db_and_tables
+from src.configurations.database import global_init
 from src.routers import v1_router
-from src.configurations.database import global_init, create_db_and_tables
 
 
 @asynccontextmanager
@@ -10,6 +13,7 @@ async def lifespan(app: FastAPI):
     global_init()
     await create_db_and_tables()
     yield
+
 
 app = FastAPI(
     title="Book Library App",

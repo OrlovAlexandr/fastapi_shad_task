@@ -1,14 +1,16 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel
+from pydantic import Field
+from pydantic import field_validator
 from pydantic_core import PydanticCustomError
-from src.models.sellers import Seller
+
 
 __all__ = ["IncomingBook", "ReturnedBook", "ReturnedAllBooks", "SellerBook"]
+
 
 class BaseBook(BaseModel):
     title: str
     author: str
     year: int
-
 
 
 class IncomingBook(BaseBook):
@@ -20,9 +22,11 @@ class IncomingBook(BaseBook):
     def validate_year(val: int) -> int:
         if val < 2020:
             raise PydanticCustomError(
-                "Valdation error", "Year is too old"
-                )
+                error_type="Valdation error",
+                message_template="Year is too old",
+            )
         return val
+
 
 class ReturnedBook(BaseBook):
     id: int
@@ -31,11 +35,13 @@ class ReturnedBook(BaseBook):
 
     model_config = {"from_attributes": True}
 
+
 class SellerBook(BaseBook):
     id: int
     pages: int
 
     model_config = {"from_attributes": True}
+
 
 class ReturnedAllBooks(BaseModel):
     books: list[ReturnedBook]
