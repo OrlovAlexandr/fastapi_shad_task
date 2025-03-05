@@ -29,13 +29,11 @@ class IncomingSeller(BaseSeller):
         password = val.get_secret_value()
         if len(val) < 8:
             raise PydanticCustomError(
-                error_type="Valdation error",
-                message_template="Password is too short",
+                "Valdation error", "Password is too short",
             )
         if not re.search("[!?@#$%^&*()]", password):
             raise PydanticCustomError(
-                error_type="Valdation error",
-                message_template="Password has no special characters",
+                "Valdation error", "Password has no special characters",
             )
         return val
 
@@ -44,8 +42,7 @@ class IncomingSeller(BaseSeller):
     def validate_email(val: str) -> str:
         if "@" not in val:
             raise PydanticCustomError(
-                error_type="Valdation error",
-                message_template="Email is not valid",
+                "Valdation error", "Email is not valid",
             )
         return val
 

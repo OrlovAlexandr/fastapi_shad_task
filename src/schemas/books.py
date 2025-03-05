@@ -21,9 +21,7 @@ class IncomingBook(BaseBook):
     @staticmethod
     def validate_year(val: int) -> int:
         if val < 2020:
-            raise PydanticCustomError(
-                error_type="Valdation error",
-                message_template="Year is too old",
+            raise PydanticCustomError("Valdation error", "Year is too old",
             )
         return val
 
