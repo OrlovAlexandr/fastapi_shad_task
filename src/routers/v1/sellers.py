@@ -65,8 +65,8 @@ async def get_seller(seller_id: int, session: DBSession) -> dict:
         last_name=result.last_name,
         email=result.email,
         password=result.password,
-        # books=[SellerBook.model_validate(book) for book in books],
-        books=[ReturnedBook.model_validate(book) for book in books],
+        books=[SellerBook.model_validate(book) for book in books],
+        # books=[ReturnedBook.model_validate(book) for book in books],
     )
 
 

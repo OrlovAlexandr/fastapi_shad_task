@@ -44,8 +44,8 @@ class IncomingSeller(BaseSeller):
 class ReturnedSeller(BaseSeller):
     id: int
     email: str
-    books: list[ReturnedBook] = []
-    # books: list[SellerBook] = []
+    # books: list[ReturnedBook] = []
+    books: list[SellerBook] = []
 
 class NewSeller(BaseSeller):
     id: int

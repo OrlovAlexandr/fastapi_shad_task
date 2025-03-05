@@ -133,7 +133,8 @@ async def test_get_seller_with_book(db_session, async_client):
         "email": "best_singer@mail.com",
         "books": [
             {
-                "id": book.id, "seller_id": seller.id,
+                "id": book.id, 
+                # "seller_id": seller.id,
                 "title": "How to sing if bear stepped on your ear", 
                 "author": "Buzova Olga", "year": 2022, "pages": 7
             }

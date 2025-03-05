@@ -7,7 +7,7 @@ Content-Type: application/json
     "author": "Robert Martin",
     "year": 2022,
     "count_pages": 500,
-    "seller_id": 6
+    "seller_id": 5
 }
 
 ###
@@ -20,7 +20,7 @@ Content-Type: application/json
     "author": "Lev Tolstoy",
     "year": 2030,
     "count_pages": 1500,
-    "seller_id": 6
+    "seller_id": 5
 }
 
 ###
@@ -33,7 +33,7 @@ Content-Type: application/json
     "author": "Buzova Olga",
     "year": 2022,
     "count_pages": 7,
-    "seller_id": 6
+    "seller_id": 4
 }
 
 ###
@@ -124,7 +124,7 @@ GET http://localhost:8000/api/v1/sellers/2 HTTP/1.1
 Content-Type: application/json
 
 ###
-DELETE http://localhost:8000/api/v1/sellers/2 HTTP/1.1
+DELETE http://localhost:8000/api/v1/sellers/1 HTTP/1.1
 Content-Type: application/json
 
 ###
