@@ -1,5 +1,8 @@
+from sqlalchemy import ForeignKey
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import relationship
 
 from .base import BaseModel
 
@@ -12,3 +15,8 @@ class Book(BaseModel):
     author: Mapped[str] = mapped_column(String(100), nullable=False)
     year: Mapped[int]
     pages: Mapped[int]
+    seller_id: Mapped[int] = mapped_column(
+        ForeignKey("sellers_table.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    seller: Mapped["Seller"] = relationship(back_populates="books")  # noqa: F821
